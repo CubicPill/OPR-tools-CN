@@ -1,6 +1,6 @@
 # OPR-tools-CN
 A plugin for ingress OPR page    
-![](https://ws1.sinaimg.cn/large/e43735f5ly1fhmckbc988j21kx1fwnpd.jpg)     
+![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/screenshot.png)     
 Edited from [opr-tools](https://gitlab.com/1110101/opr-tools/) on Gitlab. Specially customized for Mainland China users      
 Special thanks to original author [Oliwer Christ](https://gitlab.com/1110101)
 ## Features:
