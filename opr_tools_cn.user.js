@@ -201,31 +201,31 @@ color:#00FFFF;
             // more uncommon ratings (following the niantic guideline) in a dropdown menu
             const uncommonRatingsDropDown = [
                 "<li>1 Star</li>",
-                "<li><div id='apartment' rate='1' class='textButton' data-tooltip='agent name or codename in portal title/description'>Apartment Sign</div> </li>",
-                "<li><div id='cemetery' rate='1' class='textButton' data-tooltip='agent name or codename in portal title/description'>Cemetery</div> </li>",
-                "<li><div id='street_sign' rate='1' class='textButton' data-tooltip='agent name or codename in portal title/description'>City/Street Sign</div> </li>",
-                "<li><div id='fire_dept' rate='1' class='textButton' data-tooltip='agent name or codename in portal title/description'>Fire Department</div> </li>",
-                "<li><div id='hospital' rate='1' class='textButton' data-tooltip='agent name or codename in portal title/description'>Hospital</div> </li>",
-                "<li><div id='hotel' rate='1' class='textButton' data-tooltip='agent name or codename in portal title/description'>Hotel/Inn</div> </li>",
+                "<li><div id='apartment' rate='1' node='074e62624e5af37799c3d3e98593e33f' class='textButton' >Apartment Sign</div> </li>",
+                "<li><div id='cemetery' rate='1' node='415ab70db1057040f63d9b9480787e00' class='textButton' >Cemetery</div> </li>",
+                "<li><div id='street_sign' rate='1' class='textButton' >City/Street Sign</div> </li>",
+                "<li><div id='fire_dept' rate='1' node='5f6b705988ecd7252c1b3eef5401fc49' class='textButton' >Fire Department</div> </li>",
+                "<li><div id='hospital' rate='1' node='c9591928484d4ea47225598026a7c86e' class='textButton' >Hospital</div> </li>",
+                "<li><div id='hotel' rate='1' node='28020d306dcc0a0173198d6be2829ec2' class='textButton' >Hotel/Inn</div> </li>",
 
                 "<li role='separator' class='divider'></li>",
                 "<li>3 Star</li>",
-                "<li><div id='exercise' rate='3' class='textButton' data-tooltip='agent name or codename in portal title/description'>Exercise Equipment</div> </li>",
+                "<li><div id='exercise' rate='3' class='textButton' >Exercise Equipment</div> </li>",
 
                 "<li role='separator' class='divider'></li>",
                 "<li>4 Star</li>",
-                "<li><div id='post' rate='4' class='textButton' data-tooltip='agent name or codename in portal title/description'>Post Office</div> </li>",
-                "<li><div id='survey_marker' rate='4' class='textButton' data-tooltip='agent name or codename in portal title/description'>Survey Marker</div> </li>",
-                "<li><div id='water_tower' rate='4' class='textButton' data-tooltip='agent name or codename in portal title/description'>Water Tower</div> </li>",
+                "<li><div id='post' rate='4' node='34f26c9f9efdf50021f3566c3ebb7ca7' class='textButton' >Post Office</div> </li>",
+                "<li><div id='survey_marker' rate='4' node='ee395ee3e249c57fb461785900cc1fc8' class='textButton' >Survey Marker</div> </li>",
+                "<li><div id='water_tower' rate='4' node='3ae6a743d3d327d58d0ced2cdf98ee4e' class='textButton' >Water Tower</div> </li>",
 
                 "<li role='separator' class='divider'></li>",
                 "<li>5 Star</li>",
-                "<li><div id='fountain' rate='5' class='textButton' data-tooltip='agent name or codename in portal title/description'>Fountain</div> </li>",
-                "<li><div id='gazebo' rate='5' class='textButton' data-tooltip='agent name or codename in portal title/description'>Gazebo</div> </li>",
-                "<li><div id='mt_marker' rate='5' class='textButton' data-tooltip='agent name or codename in portal title/description'>Mountain Top Marker</div> </li>",
-                "<li><div id='playground' rate='5' class='textButton' data-tooltip='agent name or codename in portal title/description'>Playground</div> </li>",
-                "<li><div id='ruin' rate='5' class='textButton' data-tooltip='agent name or codename in portal title/description'>Ruin</div> </li>",
-                "<li><div id='trail_marker' rate='5' class='textButton' data-tooltip='agent name or codename in portal title/description'>Trail Marker</div> </li>",
+                "<li><div id='fountain' rate='5' node='8b2ab423b4b1d519da94473040edc07c' class='textButton' >Fountain</div> </li>",
+                "<li><div id='gazebo' rate='5' node='deaed3fc05b15a909711363addda3ba1' class='textButton' >Gazebo</div> </li>",
+                "<li><div id='mt_marker' rate='5' class='textButton' >Mountain Top Marker</div> </li>",
+                "<li><div id='playground' rate='5' node='3d62e6a4c11d43527cf1316c81398804' class='textButton' >Playground</div> </li>",
+                "<li><div id='ruin' rate='5' node='c8c6278980e1fa30937eaaf012360310' class='textButton' >Ruin</div> </li>",
+                "<li><div id='trail_marker' rate='5' node='f72a4432da22afe781f94b9ae90ae0c3' class='textButton' >Trail Marker</div> </li>",
 
             ];
 
@@ -241,11 +241,19 @@ color:#00FFFF;
                     currentSelectable++;
             }
 
+            function selectCategory(nodeId, title) {
+                const textarea = w.document.querySelector('form input');
+                textarea.value = title[0];
+                subController.whatInput = title[0];
+                subController.setWhatNode(nodeId);
+
+            }
+
             const buttons = w.document.getElementsByClassName("textButton");
             for (let b in buttons) {
                 if (buttons.hasOwnProperty(b)) {
                     buttons[b].addEventListener("click", function () {
-
+                        currentSelectable = 0;
                         const source = event.target || event.srcElement;
                         let text;
                         switch (source.id) {
@@ -275,13 +283,16 @@ color:#00FFFF;
                                 break;
                             default:
                                 text = "";
-                                alert('Not implemented yet, DO NOT USE');
-                                return;
+
 
                         }
                         if (source.hasAttribute('rate'))
                             rateScore(parseInt(source.getAttribute('rate')));
+                        if (source.hasAttribute('node')) {
+                            selectCategory(source.getAttribute('node'), source.innerText);
+                        }
                         textBox.innerText = text;
+
 
                     }, false);
                 }
