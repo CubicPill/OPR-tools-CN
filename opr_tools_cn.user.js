@@ -227,7 +227,7 @@ color:#00FFFF;
                 "<a class='button btn btn-default' target='osm' href='https://www.openstreetmap.org/?mlat=" + wgs_lat + "&mlon=" + wgs_lng + "&zoom=16'>OSM</a>",
                 "<a class='button btn btn-default' target='baidu' href='http://api.map.baidu.com/marker?location=" + wgs_lat + "," + wgs_lng + "&title=" + name + "&content=OPR_Candidate&output=html&coord_type=wgs84&src=OPR'>" + STRINGS.baidu + "</a>",
                 "<a class='button btn btn-default' target='tencent' href='http://apis.map.qq.com/uri/v1/marker?&marker=coord:" + gcj_lat + "," + gcj_lng + ";title:" + name + ";addr:&referer=OPR'>" + STRINGS.tencent + "</a>",
-                "<a class='button btn btn-default' target='baidu-streetview' href='http://api.map.baidu.com/pano/?x=" + bd_lat + "&y=" + bd_lng + "&lc=0&ak=ngDX6G7TgWSmjMstxolm7g642F7eUbkS'>" + STRINGS.bdstreetview + "</a>"
+                "<a class='button btn btn-default' target='baidu-streetview' href='http://api.map.baidu.com/pano/?x=" + bd_lng + "&y=" + bd_lat + "&lc=0&ak=ngDX6G7TgWSmjMstxolm7g642F7eUbkS'>" + STRINGS.bdstreetview + "</a>"
             ];
             descDiv.insertAdjacentHTML("beforeEnd", "<div><div class='btn-group'>" + mapButtons.join("") + "</div></div>");
 
