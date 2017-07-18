@@ -1,6 +1,7 @@
 # OPR-tools-CN
 A plugin for ingress OPR page    
-![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/screenshot.png)     
+![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/screenshot.png)
+![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/dropdown.png)
 Edited from [opr-tools](https://gitlab.com/1110101/opr-tools/) on Gitlab. Specially customized for Mainland China users      
 Special thanks to original author [Oliwer Christ](https://gitlab.com/1110101)
 ## Features:
@@ -20,13 +21,14 @@ Special thanks to original author [Oliwer Christ](https://gitlab.com/1110101)
 - **Keyboard navigation (Keys 1-5, Space to confirm, Esc, Shift, Tab for navigation + Keys on NUMPAD)**
 ## Known Issues
 - Sometimes the script will fail or be very slow to initialize, especially at the first time of page loading. Reloading will fix this issue.
-- The "What is it" auto completion is unable to work now, I'll fix this later.
 - After clicking the one-key rating button for 1-star items, the "Cancel" button on confirmation dialog may fail to function normally. You can cancel your decision by clicking the blank areas outside the dialog.
 - The script will fail to work on FireFox, and I don't know why. So please use Google Chrome with Tampermonkey.
-
+## Future Moves
+- Replace the Google Map layer with Baidu Map
 # OPR-tools-CN
 OPR 页面辅助插件
 ![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/screenshot_zh_CN.png)
+![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/dropdown_zh_CN.png)
 本项目由 Gitlab 上的 [opr-tools](https://gitlab.com/1110101/opr-tools/) 修改而来, 为中国大陆用户做了特别优化
 感谢原作者 [Oliwer Christ](https://gitlab.com/1110101)
 ## 主要功能:
@@ -46,6 +48,7 @@ OPR 页面辅助插件
 - **键盘评分 (数字 1-5 评分, 空格键确认, Esc, Shift, Tab 键及小键盘按键切换)**
 ## 已知问题
 - 由于页面的 AJAX, 插件可能会在页面元素全部显示完成后一段时间后加载完成 (常见于初次页面加载), 刷新页面可解决此问题
-- 自动选择类别功能暂不可用, 会马上修复
 - 评分一星后确认对话框的 "取消" 键可能会失去响应, 点击页面空白处即可返回审核页面
 - 此脚本在火狐浏览器上暂不可用, 请使用 Chrome 浏览器 + Tampermonkey 插件
+## 以后会加入的东西
+- 将谷歌地图图层替换为百度地图
