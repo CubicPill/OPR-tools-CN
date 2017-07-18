@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.2
+// @version      1.0.3
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -382,6 +382,21 @@ color:#00FFFF;
                                 break;
                             case "agent":
                                 text = "Title or description contains agent name";
+                                break;
+                            case "apartment":
+                                text = "Apartment Sign";
+                                break;
+                            case "cemetery":
+                                text = "Cemetery";
+                                break;
+                            case "fire_dept":
+                                text = "Fire department";
+                                break;
+                            case "hospital":
+                                text = "Hospital";
+                                break;
+                            case "hotel":
+                                text = "Hotel";
                                 break;
                             case "street_sign":
                                 text = "Street sign";
