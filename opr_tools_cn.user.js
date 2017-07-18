@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.0-alpha
+// @version      1.0.2
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -8,7 +8,6 @@
 // @homepageURL  https://github.com/CubicPill/OPR-tools-CN
 // @downloadURL  https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/opr_tools_cn.user.js
 // @updateURL    https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/opr_tools_cn.user.js
-// @supportURL   null
 // @require      https://raw.githubusercontent.com/wandergis/coordtransform/master/index.js
 
 // ==/UserScript==
