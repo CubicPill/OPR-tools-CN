@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.3
+// @version      1.0.4
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -295,7 +295,7 @@ color:#00FFFF;
                 "<div class='button btn btn-primary dropdown'><span class='caret'></span><ul class='dropdown-content dropdown-menu'>" + uncommonRatingsDropDown.join("") + "</div>");
 
             function rateScore(star) {
-                console.log("Rate" + star - 1 + "star");
+                console.log("Rate" + (star - 1) + "star");
                 w.document.querySelectorAll('.btn-group')[currentSelectable + 2].querySelectorAll('button.button-star')[star - 1].click();
                 if (currentSelectable === 0 && star === 1)
                     currentSelectable = 0;
@@ -314,11 +314,8 @@ color:#00FFFF;
                                 traverseAndPutLeaf(node.children[n]);
                             else
                                 leafNodes.push(node.children[n]);
-
                         }
                     }
-
-
                 }
 
                 traverseAndPutLeaf(root);
@@ -339,6 +336,7 @@ color:#00FFFF;
             }
 
             function setNode(nodeId) {
+                subController.backToRootNode();
                 let node = getNodeById(nodeId);
                 let list = [node];
                 while (node.parent !== null) {
@@ -587,7 +585,7 @@ color:#00FFFF;
                  97 - 101: NUMPAD 1-5
 
                  */
-
+                let numkey;
                 if (event.keyCode >= 49 && event.keyCode <= 53)
                     numkey = event.keyCode - 48;
                 else if (event.keyCode >= 97 && event.keyCode <= 101)
