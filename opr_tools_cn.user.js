@@ -162,6 +162,11 @@ function init() {
         const subController = w.$scope(descDiv).subCtrl;
         const scope = w.$scope(descDiv);
         const pageData = subController.pageData;
+        if(pageData===undefined){
+            setTimeout(initScript,1000);
+            console.log('pageData not loaded, retry in 1s');
+            return;
+        }
         let watchAdded = false;
 
         // run on init
