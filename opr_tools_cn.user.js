@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.4
+// @version      1.0.5
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -101,6 +101,7 @@ const STRINGS_CN = {
     percent_processed: "已处理的百分比"
 };
 const PORTAL_MARKER = "data:image/PNG;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAAd0SU1FB+EHEAccLVUS/qUAAAI0SURBVDjLldTNa55VEAXw39zniTGRqvEDUqOLiEGKKEELbcS9IG79AxSJqCju3MZ/oNhFwFZtEZeKS1FKXRgRLVK6qSVoGkWbCkbRlHy8b/I+46K3sYg1eJZ35p4599yZCf9AfoH3NQZuUrRCCzo72NHo6xnESRJR77WQs8TxevKeceEx4TCmpEkQfsCSzleGfJOsBPIZ4oO/CeULijCGV3RekkaEgnItReqETbyt86ZFq7Gg21VU0yZ1jgozGBbOS5eE1Upyl3APHpJeVBx0wGsWfAuRiVkTilnpdfwpfC19h560U3W3OkMaUzqHhDuFI1rz5v3UzK1r9T0pvSHcjNM4j00MhHTV14GwjVVsCFPSI9IFj1os1tyCGaGVzgoXse3G2MEyzgpFelyxrwjDeBADLEtb9kLoScvoC5PCSJGG8QA6rEgDe6MTLmNLZ0XqlWpk4/8j0QqHdG4t1cCfhcDYdX3zXxSBO6qAdY1BMaQvLUkN7q1NuJdHRZpAK32PzeJ36zhT60zjvj2e2mBCmK7FzwhXio/0tT4XPsbdmKnVyr8oCezHDMYVp7Q+86uNNjZlXrJowryBg7hfGJXOKS7r/FZJxqT9mMa4dBFvCRfiQxnXpjdfNWrLE3gWT0sbdUB7Vc8wRjAqfKpzQmch3nUlZ+v058vE/O4WeBhPSYdrf01Woh+lJXyp+CSOOQf5PPHOdWtk92efU4zYZ9s4bpduq6E16Q+NX7AWx3Q5R8xdDf4FFQPK0NE5za8AAAAASUVORK5CYII=";
+
 function addGlobalStyle(css) {
     let head, style;
     head = document.getElementsByTagName("head")[0];
@@ -529,9 +530,50 @@ color:#00FFFF;
                 br.insertAdjacentElement("afterend", a);
             }
 
-            // Automatically open the first listed possible duplicate
+            function editDistance(s1, s2) {
+                let len1 = s1.length, len2 = s2.length;
+                let d = [];
+                let i, j;
+                /*初始化二维数组，以及定义
+                 if i == 0 且 j == 0，edit(i, j) = 0
+                 if i == 0 且 j > 0，edit(i, j) = j
+                 if i > 0 且j == 0，edit(i, j) = i
+                 */
+
+                for (i = 0; i <= len1; i++) {
+                    d[i] = [];
+                    d[i][0] = i;
+                }
+                for (j = 0; j <= len2; j++) {
+                    d[0][j] = j;
+                }
+                for (i = 1; i <= len1; i++) {
+                    for (j = 1; j <= len2; j++) {
+                        let cost = s1[i] === s2[j] ? 0 : 1;
+                        let deletion = d[i - 1][j] + 1; //删除动作
+                        let insertion = d[i][j - 1] + 1; //增加动作
+                        let substitution = d[i - 1][j - 1] + cost; //替换字符，如果相同cost=0；不同cost=1
+                        d[i][j] = Math.min(deletion, insertion, substitution);
+                    }
+                }
+                return 1 - d[len1][len2] / Math.max(len1, len2);
+            }
+
+            const activePortals = subController.activePortals;
+            let estimatedDup = 1;
+            let currRate = 0;
+            for (let i = 0; i < Math.min(activePortals.length, 10); ++i) {
+                let rate = editDistance(activePortals[i].title, pageData.title);
+                if (rate > currRate && rate > 0.25) {
+                    estimatedDup = i + 1;
+                    currRate = rate;
+                }
+            }
+            console.log('Estimated duplicate: ' + activePortals[estimatedDup - 1].title + ', Rate: ' + currRate);
+
+            // Automatically open the most possible duplicate
             try {
-                const e = w.document.querySelector("#map-filmstrip > ul > li:nth-child(1) > img");
+                const e = w.document.querySelector("#map-filmstrip > ul > li:nth-child(" + estimatedDup + ") > img");
                 setTimeout(function () {
                     e.click();
                 }, 500);
@@ -667,7 +709,7 @@ window.addEventListener('load', function () {
     if (navigator.language === "zh-CN")
         STRINGS = STRINGS_CN;
     if (document.querySelector("[src*='all-min']")) {
-        init();
+        setTimeout(init(), 1000);
     }
 }, false);
 
