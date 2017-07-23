@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.6
+// @version      1.0.7
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -162,6 +162,11 @@ function init() {
         const subController = w.$scope(descDiv).subCtrl;
         const scope = w.$scope(descDiv);
         const pageData = subController.pageData;
+        if (pageData === undefined) {
+            setTimeout(initScript, 1000);
+            console.log('pageData not loaded, retry in 1s');
+            return;
+        }
         let watchAdded = false;
 
         // run on init
@@ -326,9 +331,9 @@ color:#00FFFF;
             }, 1000);
 
             function getNodeById(id) {
-                for (let n in leafNodes) {
-                    if (leafNodes[n].id === id)
-                        return leafNodes[n];
+                for (let n in w.leafNodes) {
+                    if (w.leafNodes[n].id === id)
+                        return w.leafNodes[n];
                 }
                 return null;
             }
@@ -525,6 +530,8 @@ color:#00FFFF;
             }
 
             function editDistance(s1, s2) {
+                s1 = s1.toLowerCase();
+                s2 = s2.toLowerCase();
                 let len1 = s1.length, len2 = s2.length;
                 let d = [];
                 let i, j;
@@ -557,6 +564,12 @@ color:#00FFFF;
             let estimatedDup = 1;
             let currRate = 0;
             for (let i = 0; i < Math.min(activePortals.length, 10); ++i) {
+                if (activePortals[i].title.toLowerCase().indexOf(pageData.title.toLowerCase()) > 0
+                    || pageData.title.toLowerCase().indexOf(activePortals[i].title.toLowerCase()) > 0) {
+                    estimatedDup = i + 1;
+                    currRate = -1;
+                    return;
+                } // handle situation that one is part of another
                 let rate = editDistance(activePortals[i].title, pageData.title);
                 if (rate > currRate && rate > 0.25) {
                     estimatedDup = i + 1;
@@ -703,7 +716,7 @@ window.addEventListener('load', function () {
     if (navigator.language === "zh-CN")
         STRINGS = STRINGS_CN;
     if (document.querySelector("[src*='all-min']")) {
-        setTimeout(init(), 1000);
+        init();
     }
 }, false);
 
