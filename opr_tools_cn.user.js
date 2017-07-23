@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.7
+// @version      1.0.8
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -298,7 +298,7 @@ color:#00FFFF;
                 "<div class='button btn btn-primary dropdown'><span class='caret'></span><ul class='dropdown-content dropdown-menu'>" + uncommonRatingsDropDown.join("") + "</div>");
 
             function rateScore(star) {
-                console.log("Rate" + (star - 1) + "star");
+                console.log("Rate " + star + " star");
                 w.document.querySelectorAll('.btn-group')[currentSelectable + 2].querySelectorAll('button.button-star')[star - 1].click();
                 if (currentSelectable === 0 && star === 1)
                     currentSelectable = 0;
@@ -563,28 +563,30 @@ color:#00FFFF;
             const activePortals = subController.activePortals;
             let estimatedDup = 1;
             let currRate = 0;
-            for (let i = 0; i < Math.min(activePortals.length, 10); ++i) {
-                if (activePortals[i].title.toLowerCase().indexOf(pageData.title.toLowerCase()) > 0
-                    || pageData.title.toLowerCase().indexOf(activePortals[i].title.toLowerCase()) > 0) {
-                    estimatedDup = i + 1;
-                    currRate = -1;
-                    return;
-                } // handle situation that one is part of another
-                let rate = editDistance(activePortals[i].title, pageData.title);
-                if (rate > currRate && rate > 0.25) {
-                    estimatedDup = i + 1;
-                    currRate = rate;
+            if (activePortals.length !== 0) {
+                for (let i = 0; i < Math.min(activePortals.length, 10); ++i) {
+                    if (activePortals[i].title.toLowerCase().indexOf(pageData.title.toLowerCase()) >= 0
+                        || pageData.title.toLowerCase().indexOf(activePortals[i].title.toLowerCase()) >= 0) {
+                        estimatedDup = i + 1;
+                        currRate = -1;
+                        return;
+                    } // handle situation that one is part of another
+                    let rate = editDistance(activePortals[i].title, pageData.title);
+                    if (rate > currRate && rate > 0.25) {
+                        estimatedDup = i + 1;
+                        currRate = rate;
+                    }
                 }
-            }
-            console.log('Estimated duplicate: ' + activePortals[estimatedDup - 1].title + ', Rate: ' + currRate);
+                console.log('Estimated duplicate: ' + activePortals[estimatedDup - 1].title + ', Rate: ' + currRate);
 
-            // Automatically open the most possible duplicate
-            try {
-                const e = w.document.querySelector("#map-filmstrip > ul > li:nth-child(" + estimatedDup + ") > img");
-                setTimeout(function () {
-                    e.click();
-                }, 500);
-            } catch (err) {
+                // Automatically open the most possible duplicate
+                try {
+                    const e = w.document.querySelector("#map-filmstrip > ul > li:nth-child(" + estimatedDup + ") > img");
+                    setTimeout(function () {
+                        e.click();
+                    }, 500);
+                } catch (err) {
+                }
             }
 
             // expand automatically the "What is it?" filter text box
