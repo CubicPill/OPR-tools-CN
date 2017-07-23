@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.5
+// @version      1.0.6
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -45,7 +45,6 @@ let STRINGS = {
     bdstreetview: "Baidu StreetView",
     photo: "Bad Photo",
     private: "Private Area",
-    dup: "Duplicate",
     school: "School",
     face: "Face",
     temporary: "Temporary",
@@ -76,7 +75,6 @@ const STRINGS_CN = {
     bdstreetview: "百度街景",
     photo: "低质量图片",
     private: "封闭区域",
-    dup: "重复",
     school: "中小学",
     face: "人脸",
     temporary: "临时景观",
@@ -250,7 +248,6 @@ color:#00FFFF;
             const textButtons = [
                 "<button id='photo' rate='1' class='button btn btn-default textButton' data-tooltip='indicates a low quality photo'>" + STRINGS.photo + "</button>",
                 "<button id='private' rate='1' class='button btn btn-default textButton' data-tooltip='located on private residential property'>" + STRINGS.private + "</button>",
-                "<button id='duplicate' rate='1' class='button btn btn-default textButton' data-tooltip='duplicate of one you have previously reviewed'>" + STRINGS.dup + "</button>",
                 "<button id='school' rate='1' class='button btn btn-default textButton' data-tooltip='located on school property'>" + STRINGS.school + "</button>",
                 "<button id='face' rate='1' class='button btn btn-default textButton' data-tooltip='photo contains 1 or more people faces'>" + STRINGS.face + "</button>",
                 "<button id='temporary' rate='1' class='button btn btn-default textButton' data-tooltip='seasonal or temporary display or item'>" + STRINGS.temporary + "</button>",
@@ -363,9 +360,6 @@ color:#00FFFF;
                                 break;
                             case "private":
                                 text = "Private residential property";
-                                break;
-                            case "duplicate":
-                                text = "Duplicate of previously reviewed portal candidate";
                                 break;
                             case "school":
                                 text = "Located on primary or secondary school grounds";
