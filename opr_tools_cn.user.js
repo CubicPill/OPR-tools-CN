@@ -243,8 +243,8 @@ color:#00FFFF;
             const newSubmitDiv = w.document.createElement("div");
             newSubmitDiv.className = "col-xs-12 col-sm-6";
             submitDiv[0].style.marginTop = 16;
-            newSubmitDiv.appendChild(submitDiv[1]);
             newSubmitDiv.appendChild(submitDiv[0]);
+            newSubmitDiv.appendChild(submitDiv[1]);
             classificationRow.insertAdjacentElement("afterend", newSubmitDiv);
 
 
