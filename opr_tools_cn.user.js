@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.8
+// @version      1.0.9
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -42,6 +42,7 @@
 let STRINGS = {
     baidu: "Baidu",
     tencent: "Tencent",
+    amap: "Amap",
     bdstreetview: "Baidu StreetView",
     photo: "Bad Photo",
     private: "Private Area",
@@ -72,6 +73,7 @@ let STRINGS = {
 const STRINGS_CN = {
     baidu: "百度地图",
     tencent: "腾讯地图",
+    amap: "高德地图",
     bdstreetview: "百度街景",
     photo: "低质量图片",
     private: "封闭区域",
@@ -193,6 +195,7 @@ color:#00FFFF;
             "<a class='button btn btn-default' target='osm' href='https://www.openstreetmap.org/?mlat=" + wgs_lat + "&mlon=" + wgs_lng + "&zoom=16'>OSM</a>",
             "<a class='button btn btn-default' target='baidu' href='http://api.map.baidu.com/marker?location=" + wgs_lat + "," + wgs_lng + "&title=" + name + "&content=OPR_Candidate&output=html&coord_type=wgs84&src=OPR'>" + STRINGS.baidu + "</a>",
             "<a class='button btn btn-default' target='tencent' href='http://apis.map.qq.com/uri/v1/marker?&marker=coord:" + gcj_lat + "," + gcj_lng + ";title:" + name + ";addr:&referer=OPR'>" + STRINGS.tencent + "</a>",
+            "<a class='button btn btn-default' target='amap' href='http://uri.amap.com/marker?position=" + wgs_lng + "," + wgs_lat + "&name=" + name + "&src=opr&coordinate=wgs84&callnative=0\n'>" + STRINGS.amap + "</a>",
             "<a class='button btn btn-default' target='baidu-streetview' href='http://api.map.baidu.com/pano/?x=" + bd_lng + "&y=" + bd_lat + "&lc=0&ak=ngDX6G7TgWSmjMstxolm7g642F7eUbkS'>" + STRINGS.bdstreetview + "</a>"
         ];
         descDiv.insertAdjacentHTML("beforeEnd", "<div><div class='btn-group'>" + mapButtons.join("") + "</div></div>");
