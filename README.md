@@ -24,7 +24,7 @@ Special thanks to original author [Oliwer Christ](https://gitlab.com/1110101)
 - After clicking the one-key rating button for 1-star items, the "Cancel" button on confirmation dialog may fail to function normally. You can cancel your decision by clicking the blank areas outside the dialog.
 - The script will fail to work on FireFox, and I don't know why. So please use Google Chrome with Tampermonkey.
 ## Future Moves
-- Replace the Google Map layer with Baidu Map
+- Replace the Google Map layer with Baidu Map (Will be implemented in the Chrome Extension version)
 # OPR-tools-CN
 OPR 页面辅助插件
 ![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/screenshot_zh_CN.png)
@@ -51,4 +51,4 @@ OPR 页面辅助插件
 - 评分一星后确认对话框的 "取消" 键可能会失去响应, 点击页面空白处即可返回审核页面
 - 此脚本在火狐浏览器上暂不可用, 请使用 Chrome 浏览器 + Tampermonkey 插件
 ## 以后会加入的东西
-- 将谷歌地图图层替换为百度地图
+- 将谷歌地图图层替换为百度地图 (用户脚本实现困难, 将在 Chrome Extension 中实现)
