@@ -129,7 +129,7 @@ function initScript() {
     const descDiv = document.getElementById("descriptionDiv");
     const ansController = w.$scope(descDiv).answerCtrl;
     const subController = w.$scope(descDiv).subCtrl;
-    const scope = w.$scope(descDiv);
+    //const scope = w.$scope(descDiv);
     const pageData = subController.pageData;
     if (pageData === undefined) {
         setTimeout(initScript, 1000);
@@ -698,6 +698,7 @@ function init() {
     if (w.angular) {
         initAngular();
         initScript();
+        console.log('Script loaded');
     } else {
         console.log('retry init in 1 sec');
         setTimeout(init, 1000);
