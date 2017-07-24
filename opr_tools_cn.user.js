@@ -115,35 +115,14 @@ function addGlobalStyle(css) {
 
 function init() {
     const w = typeof unsafeWindow === "undefined" ? window : unsafeWindow;
-    let tryNumber = 5;
-    const initWatcher = setInterval(function () {
-        if (tryNumber === 0) {
-            clearInterval(initWatcher);
-            w.document.getElementById("NewSubmissionController").insertAdjacentHTML("afterBegin", `
-<div class='alert alert-danger'><strong><span class='glyphicon glyphicon-remove'></span> OPR tools initialization failed,</strong> check developer console for error details</div>
-`);
-            return;
-        }
-        if (w.angular) {
-            let err = false;
-            try {
-                initAngular();
-                clearInterval(initWatcher);
-            }
-            catch (error) {
-                err = error;
-                console.error(error);
-            }
-            if (!err) {
-                try {
-                    initScript();
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-        }
-        tryNumber--;
-    }, 500);
+    if (w.angular) {
+        initAngular();
+    } else {
+        console.log('retry init in 1 sec');
+        setInterval(init, 1000);
+    }
+    initScript();
+
 
     function initAngular() {
         const el = w.document.querySelector("[ng-app='portalApp']");
@@ -577,7 +556,10 @@ color:#00FFFF;
                         currRate = rate;
                     }
                 }
-                console.log('Estimated duplicate: ' + activePortals[estimatedDup - 1].title + ', Rate: ' + currRate);
+                if (currRate !== 0)
+                    console.log('Estimated duplicate: ' + activePortals[estimatedDup - 1].title + ', Rate: ' + currRate);
+                else
+                    console.log('No possible duplicate found. Pick the first by default');
 
                 // Automatically open the most possible duplicate
                 try {
@@ -586,6 +568,8 @@ color:#00FFFF;
                         e.click();
                     }, 500);
                 } catch (err) {
+                    console.error(err);
+
                 }
             }
 
@@ -596,6 +580,7 @@ color:#00FFFF;
                     f.click();
                 }, 500);
             } catch (err) {
+                console.error(err);
             }
 
 
@@ -628,6 +613,8 @@ color:#00FFFF;
                  16: Shift
                  27: Escape
                  32: Space
+                 68: d
+                 83: s
                  107: NUMPAD +
                  109: NUMPAD -
                  111: NUMPAD /
@@ -642,7 +629,8 @@ color:#00FFFF;
                 else if (event.keyCode >= 97 && event.keyCode <= 101)
                     numkey = event.keyCode - 96;
                 else
-                    numkey = null;
+                    console.debug(event.keyCode);
+                numkey = null;
 
                 if (w.document.querySelector("input[type=text]:focus") || w.document.querySelector("textarea:focus")) {
                     return;
@@ -651,24 +639,35 @@ color:#00FFFF;
                 else if ((event.keyCode === 13 || event.keyCode === 32) && w.document.querySelector('a.button[href="/recon"]')) {
                     w.document.location.href = '/recon';
                     event.preventDefault();
-                } // submit low quality rating
+                }
+                // submit low quality rating
                 else if ((event.keyCode === 13 || event.keyCode === 32) && w.document.querySelector('[ng-click="answerCtrl2.confirmLowQuality()"]')) {
                     w.document.querySelector('[ng-click="answerCtrl2.confirmLowQuality()"]').click();
                     currentSelectable = 0;
                     event.preventDefault();
 
-                } // submit duplicate
+                }
+                // submit duplicate
                 else if ((event.keyCode === 13 || event.keyCode === 32) && w.document.querySelector('[ng-click="answerCtrl2.confirmDuplicate()"]')) {
                     w.document.querySelector('[ng-click="answerCtrl2.confirmDuplicate()"]').click();
                     currentSelectable = 0;
                     event.preventDefault();
 
-                } // submit normal rating
+                }
+                // mark current duplicate
+                else if (event.keyCode === 68) {
+                    let button = document.querySelector('#map button');
+                    if (button !== null)
+                        button.click();
+                    event.preventDefault();
+                }
+                // submit normal rating
                 else if ((event.keyCode === 13 || event.keyCode === 32) && currentSelectable === maxItems) {
                     w.document.querySelector('[ng-click="answerCtrl.submitForm()"]').click();
                     event.preventDefault();
 
-                } // close duplicate dialog
+                }
+                // close duplicate dialog
                 else if ((event.keyCode === 27 || event.keyCode === 111) && w.document.querySelector('[ng-click="answerCtrl2.resetDuplicate()"]')) {
                     w.document.querySelector('[ng-click="answerCtrl2.resetDuplicate()"]').click();
                     currentSelectable = 0;
