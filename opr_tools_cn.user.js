@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.9
+// @version      1.0.10
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -461,18 +461,29 @@ color:#00FFFF;
         }
 
         // Bind click-event to Dup-Images-Filmstrip. result: a click to the detail-image the large version is loaded in another tab
-        const imgDups = w.document.querySelectorAll("#map-filmstrip > ul > li > img");
+        const imgDups = window.document.querySelectorAll("#map-filmstrip > ul > li > img");
         const clickListener = function () {
-            w.open(this.src + "=s0", 'fulldupimage');
+            window.open(this.src + "=s0", 'fulldupimage');
         };
+
+        function openInNewTabWhenClicked() {
+
+            let imgDup = window.document.querySelector("#content > img");
+            if (imgDup === null) {
+                setTimeout(openInNewTabWhenClicked, 1000);
+                console.log('Current duplicate window not shown, retry in 1s');
+                return;
+            }
+            imgDup.removeEventListener("click", clickListener);
+            imgDup.addEventListener("click", clickListener);
+            imgDup.setAttribute("style", "cursor: pointer;");
+
+
+        }
+
         for (let imgSep in imgDups) {
             if (imgDups.hasOwnProperty(imgSep)) {
-                imgDups[imgSep].addEventListener("click", function () {
-                    const imgDup = w.document.querySelector("#content > img");
-                    imgDup.removeEventListener("click", clickListener);
-                    imgDup.addEventListener("click", clickListener);
-                    imgDup.setAttribute("style", "cursor: pointer;");
-                });
+                imgDups[imgSep].addEventListener("click", openInNewTabWhenClicked);
             }
         }
 
