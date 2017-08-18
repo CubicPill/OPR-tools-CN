@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.10
+// @version      1.0.11
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/recon
@@ -102,6 +102,7 @@ const STRINGS_CN = {
 };
 const PORTAL_MARKER = "data:image/PNG;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAAd0SU1FB+EHEAccLVUS/qUAAAI0SURBVDjLldTNa55VEAXw39zniTGRqvEDUqOLiEGKKEELbcS9IG79AxSJqCju3MZ/oNhFwFZtEZeKS1FKXRgRLVK6qSVoGkWbCkbRlHy8b/I+46K3sYg1eJZ35p4599yZCf9AfoH3NQZuUrRCCzo72NHo6xnESRJR77WQs8TxevKeceEx4TCmpEkQfsCSzleGfJOsBPIZ4oO/CeULijCGV3RekkaEgnItReqETbyt86ZFq7Gg21VU0yZ1jgozGBbOS5eE1Upyl3APHpJeVBx0wGsWfAuRiVkTilnpdfwpfC19h560U3W3OkMaUzqHhDuFI1rz5v3UzK1r9T0pvSHcjNM4j00MhHTV14GwjVVsCFPSI9IFj1os1tyCGaGVzgoXse3G2MEyzgpFelyxrwjDeBADLEtb9kLoScvoC5PCSJGG8QA6rEgDe6MTLmNLZ0XqlWpk4/8j0QqHdG4t1cCfhcDYdX3zXxSBO6qAdY1BMaQvLUkN7q1NuJdHRZpAK32PzeJ36zhT60zjvj2e2mBCmK7FzwhXio/0tT4XPsbdmKnVyr8oCezHDMYVp7Q+86uNNjZlXrJowryBg7hfGJXOKS7r/FZJxqT9mMa4dBFvCRfiQxnXpjdfNWrLE3gWT0sbdUB7Vc8wRjAqfKpzQmch3nUlZ+v058vE/O4WeBhPSYdrf01Woh+lJXyp+CSOOQf5PPHOdWtk92efU4zYZ9s4bpduq6E16Q+NX7AWx3Q5R8xdDf4FFQPK0NE5za8AAAAASUVORK5CYII=";
 const w = typeof unsafeWindow === "undefined" ? window : unsafeWindow;
+const BTN_GRP_INDEX = [2, 3, 4, 5, 9, 10];
 
 function addGlobalStyle(css) {
     let head, style;
@@ -269,13 +270,13 @@ color:#00FFFF;
                 element.style.border = 'none';
             }, w));
             if (currentSelectable < maxItems) {
-                w.document.querySelectorAll('.btn-group')[currentSelectable + 2].style.border = cloneInto('1px dashed #ebbc4a', w);
+                w.document.querySelectorAll('.btn-group')[BTN_GRP_INDEX[currentSelectable % maxItems]].style.border = cloneInto('1px dashed #ebbc4a', w);
             }
         }
 
         function rateScore(star) {
             console.log("Rate " + star + " star");
-            w.document.querySelectorAll('.btn-group')[currentSelectable + 2].querySelectorAll('button.button-star')[star - 1].click();
+            w.document.querySelectorAll('.btn-group')[BTN_GRP_INDEX[currentSelectable % maxItems]].querySelectorAll('button.button-star')[star - 1].click();
             if (currentSelectable === 0 && star === 1)
                 currentSelectable = 0;
             else
@@ -415,8 +416,12 @@ color:#00FFFF;
         w.document.querySelector("#player_stats:not(.visible-xs) div p:last-child").insertAdjacentHTML("afterEnd", '<br><p><input style="width: 99%;" type="text" ' +
             'value="' + reviewed + ' / ' + (accepted + rejected ) + ' (' + accepted + '/' + rejected + ') / ' + percent + '%"/></p>');
 
-        // kill autoscroll
-        ansController.goToLocation = null;
+
+        // Removed. NIA has provided selection to disable autoscroll
+        /*// kill autoscroll
+        subController.goToLocation = null;
+        */
+
 
         // portal image zoom button with "=s0"
         w.document.querySelector("#AnswersController .ingress-background").insertAdjacentHTML("beforeBegin",
@@ -466,7 +471,8 @@ color:#00FFFF;
             window.open(this.src + "=s0", 'fulldupimage');
         };
 
-        function openInNewTabWhenClicked() {
+        // Deleted. NIA has done this
+        /*function openInNewTabWhenClicked() {
 
             let imgDup = window.document.querySelector("#content > img");
             if (imgDup === null) {
@@ -485,7 +491,8 @@ color:#00FFFF;
             if (imgDups.hasOwnProperty(imgSep)) {
                 imgDups[imgSep].addEventListener("click", openInNewTabWhenClicked);
             }
-        }
+        }*/
+
 
         // add translate buttons to title and description (if existing)
         const link = w.document.querySelector("#descriptionDiv a");
@@ -657,6 +664,13 @@ color:#00FFFF;
                 let button = document.querySelector('#map button');
                 if (button !== null)
                     button.click();
+                event.preventDefault();
+            }
+            // skip current candidate
+            else if (event.keyCode === 83) {
+                let skip = document.querySelector('form.ng-pristine.ng-valid > div.text-center > span.clickable.ingress-mid-blue');
+                if (skip !== null)
+                    skip.click();
                 event.preventDefault();
             }
             // submit normal rating
