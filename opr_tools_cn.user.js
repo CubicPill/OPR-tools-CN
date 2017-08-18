@@ -416,8 +416,12 @@ color:#00FFFF;
         w.document.querySelector("#player_stats:not(.visible-xs) div p:last-child").insertAdjacentHTML("afterEnd", '<br><p><input style="width: 99%;" type="text" ' +
             'value="' + reviewed + ' / ' + (accepted + rejected ) + ' (' + accepted + '/' + rejected + ') / ' + percent + '%"/></p>');
 
-        // kill autoscroll
+
+        // Removed. NIA has provided selection to disable autoscroll
+        /*// kill autoscroll
         subController.goToLocation = null;
+        */
+
 
         // portal image zoom button with "=s0"
         w.document.querySelector("#AnswersController .ingress-background").insertAdjacentHTML("beforeBegin",
@@ -660,6 +664,13 @@ color:#00FFFF;
                 let button = document.querySelector('#map button');
                 if (button !== null)
                     button.click();
+                event.preventDefault();
+            }
+            // skip current candidate
+            else if (event.keyCode === 83) {
+                let skip = document.querySelector('form.ng-pristine.ng-valid > div.text-center > span.clickable.ingress-mid-blue');
+                if (skip !== null)
+                    skip.click();
                 event.preventDefault();
             }
             // submit normal rating
