@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.0.11
+// @version      1.1.0
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
-// @match        https://opr.ingress.com/recon
+// @match        https://opr.ingress.com/*
 // @grant        unsafeWindow
 // @homepageURL  https://github.com/CubicPill/OPR-tools-CN
 // @downloadURL  https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/opr_tools_cn.user.js
@@ -67,8 +67,8 @@ let STRINGS = {
     playground: "Playground",
     ruin: "Ruins",
     trail_mk: "Trail Marker",
-    percent_processed: "Percent Processed"
-
+    percent_processed: "Percent Processed",
+    next_badge_tier: "Next badge tier"
 };
 const STRINGS_CN = {
     baidu: "百度地图",
@@ -98,8 +98,10 @@ const STRINGS_CN = {
     playground: "运动场",
     ruin: "遗址",
     trail_mk: "步道路标",
-    percent_processed: "已处理的百分比"
+    percent_processed: "已处理的百分比",
+    next_badge_tier: "下一等级牌子"
 };
+
 const PORTAL_MARKER = "data:image/PNG;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAAd0SU1FB+EHEAccLVUS/qUAAAI0SURBVDjLldTNa55VEAXw39zniTGRqvEDUqOLiEGKKEELbcS9IG79AxSJqCju3MZ/oNhFwFZtEZeKS1FKXRgRLVK6qSVoGkWbCkbRlHy8b/I+46K3sYg1eJZ35p4599yZCf9AfoH3NQZuUrRCCzo72NHo6xnESRJR77WQs8TxevKeceEx4TCmpEkQfsCSzleGfJOsBPIZ4oO/CeULijCGV3RekkaEgnItReqETbyt86ZFq7Gg21VU0yZ1jgozGBbOS5eE1Upyl3APHpJeVBx0wGsWfAuRiVkTilnpdfwpfC19h560U3W3OkMaUzqHhDuFI1rz5v3UzK1r9T0pvSHcjNM4j00MhHTV14GwjVVsCFPSI9IFj1os1tyCGaGVzgoXse3G2MEyzgpFelyxrwjDeBADLEtb9kLoScvoC5PCSJGG8QA6rEgDe6MTLmNLZ0XqlWpk4/8j0QqHdG4t1cCfhcDYdX3zXxSBO6qAdY1BMaQvLUkN7q1NuJdHRZpAK32PzeJ36zhT60zjvj2e2mBCmK7FzwhXio/0tT4XPsbdmKnVyr8oCezHDMYVp7Q+86uNNjZlXrJowryBg7hfGJXOKS7r/FZJxqT9mMa4dBFvCRfiQxnXpjdfNWrLE3gWT0sbdUB7Vc8wRjAqfKpzQmch3nUlZ+v058vE/O4WeBhPSYdrf01Woh+lJXyp+CSOOQf5PPHOdWtk92efU4zYZ9s4bpduq6E16Q+NX7AWx3Q5R8xdDf4FFQPK0NE5za8AAAAASUVORK5CYII=";
 const w = typeof unsafeWindow === "undefined" ? window : unsafeWindow;
 const BTN_GRP_INDEX = [2, 3, 4, 5, 9, 10];
@@ -128,7 +130,58 @@ function initAngular() {
     };
 }
 
+function show_bar() {
+    // stats enhancements: adding processed by nia, percent processed, progress to next recon badge numbers
+    // copy-paste from original script
+    const lastPlayerStatLine = w.document.querySelector("#player_stats:not(.visible-xs) div");
+    const stats = w.document.querySelector("#player_stats").children[2];
+
+    const reviewed = parseInt(stats.children[3].children[2].innerText);
+    const accepted = parseInt(stats.children[5].children[2].innerText);
+    const rejected = parseInt(stats.children[7].children[2].innerText);
+
+    const processed = accepted + rejected;
+    const percent = Math.round(processed / reviewed * 1000) / 10;
+
+    const reconBadge = {100: "Bronze", 750: "Silver", 2500: "Gold", 5000: "Platin", 10000: "Black"};
+    let nextBadgeName, nextBadgeCount;
+
+    for (const key in reconBadge) {
+        if (processed <= key) {
+            nextBadgeCount = key;
+            nextBadgeName = reconBadge[key];
+            break;
+        }
+    }
+    const nextBadgeProcess = processed / nextBadgeCount * 100;
+
+    lastPlayerStatLine.insertAdjacentHTML("beforeEnd", '<br><p><span class="glyphicon glyphicon-info-sign ingress-gray pull-left"></span>' +
+        '<span style="margin-left: 5px;" class="ingress-mid-blue pull-left">' + STRINGS.percent_processed + '</span> <span class="gold pull-right">' + processed + ' (' + percent + '%) </span></p>');
+
+    lastPlayerStatLine.insertAdjacentHTML("beforeEnd",
+        `<br><div>` + STRINGS.next_badge_tier + `: <b>` + nextBadgeName + ' (' + nextBadgeCount + ')' + `</b><span class="pull-right"></span>
+			        <div class="progress">
+				        <div class="progress-bar progress-bar-warning"
+				        role="progressbar"
+				        aria-valuenow="` + nextBadgeProcess + `"
+				        aria-valuemin="0"
+				        aria-valuemax="100"
+				        style="width: ` + Math.round(nextBadgeProcess) + `%;"
+				        title="` + (nextBadgeCount - processed) + ` to go">
+				            ` + Math.round(nextBadgeProcess) + `%
+			        </div></div></div>`);
+
+    lastPlayerStatLine.insertAdjacentHTML("beforeEnd", '<p><input onFocus="this.select();" style="width: 99%;" type="text" ' +
+        'value="' + reviewed + ' / ' + (accepted + rejected ) + ' (' + accepted + '/' + rejected + ') / ' + Math.round(percent) + '%"/></p>');
+    show_bar = function () {
+    }
+}
+
 function initScript() {
+    show_bar();
+    if (window.location.href !== "https://opr.ingress.com/recon") {
+        return;
+    }
     const descDiv = document.getElementById("descriptionDiv");
     const ansController = w.$scope(descDiv).answerCtrl;
     const subController = w.$scope(descDiv).subCtrl;
@@ -141,10 +194,18 @@ function initScript() {
     }
 
     // run on init
+
+
     modifyPage();
 
 
     function modifyPage() {
+        if (subController.errorMessage !== "") {
+            // no portal analysis available
+            console.log('No portal to analysis, refresh in 2 minutes');
+            setInterval(w.location.reload, 120000);
+            return;
+        }
 
         // adding CSS
         addGlobalStyle(`
@@ -400,29 +461,6 @@ color:#00FFFF;
         }
 
 
-        // adding percent procressed number
-        const stats = w.document.querySelector("#player_stats").children[2];
-
-        const reviewed = parseInt(stats.children[3].children[2].innerText);
-        const accepted = parseInt(stats.children[5].children[2].innerText);
-        const rejected = parseInt(stats.children[7].children[2].innerText);
-
-        let percent = (accepted + rejected) / reviewed;
-        percent = Math.round(percent * 1000) / 10;
-        w.document.querySelector("#player_stats:not(.visible-xs) div p:last-child")
-            .insertAdjacentHTML("afterEnd", '<br><p><span class="glyphicon glyphicon-info-sign ingress-gray pull-left"></span>' +
-                '<span style="margin-left: 5px;" class="ingress-mid-blue pull-left">' + STRINGS.percent_processed + '</span> <span class="gold pull-right">' + percent + '%</span></p>');
-
-        w.document.querySelector("#player_stats:not(.visible-xs) div p:last-child").insertAdjacentHTML("afterEnd", '<br><p><input style="width: 99%;" type="text" ' +
-            'value="' + reviewed + ' / ' + (accepted + rejected ) + ' (' + accepted + '/' + rejected + ') / ' + percent + '%"/></p>');
-
-
-        // Removed. NIA has provided selection to disable autoscroll
-        /*// kill autoscroll
-        subController.goToLocation = null;
-        */
-
-
         // portal image zoom button with "=s0"
         w.document.querySelector("#AnswersController .ingress-background").insertAdjacentHTML("beforeBegin",
             "<div style='position:absolute;float:left;'><a class='button btn btn-default' style='display:inline-block;' href='" + subController.pageData.imageUrl + "=s0' target='fullimage'><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div>");
@@ -470,28 +508,6 @@ color:#00FFFF;
         const clickListener = function () {
             window.open(this.src + "=s0", 'fulldupimage');
         };
-
-        // Deleted. NIA has done this
-        /*function openInNewTabWhenClicked() {
-
-            let imgDup = window.document.querySelector("#content > img");
-            if (imgDup === null) {
-                setTimeout(openInNewTabWhenClicked, 1000);
-                console.log('Current duplicate window not shown, retry in 1s');
-                return;
-            }
-            imgDup.removeEventListener("click", clickListener);
-            imgDup.addEventListener("click", clickListener);
-            imgDup.setAttribute("style", "cursor: pointer;");
-
-
-        }
-
-        for (let imgSep in imgDups) {
-            if (imgDups.hasOwnProperty(imgSep)) {
-                imgDups[imgSep].addEventListener("click", openInNewTabWhenClicked);
-            }
-        }*/
 
 
         // add translate buttons to title and description (if existing)
@@ -737,7 +753,14 @@ window.addEventListener('load', function () {
     if (navigator.language === "zh-CN")
         STRINGS = STRINGS_CN;
     if (document.querySelector("[src*='all-min']")) {
-        init();
+        try {
+            init();
+        } catch (e) {
+            w.document.getElementById("NewSubmissionController").insertAdjacentHTML("afterBegin",
+                "<div class='alert alert-danger'><strong><span class='glyphicon glyphicon-remove'>" +
+                "</span> OPR tools encountered and error</strong>, " +
+                "refresh page or check developer console for error details</div>");
+        }
     }
 }, false);
 
