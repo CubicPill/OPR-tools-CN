@@ -173,7 +173,8 @@ function show_bar() {
 
     lastPlayerStatLine.insertAdjacentHTML("beforeEnd", '<p><input onFocus="this.select();" style="width: 99%;" type="text" ' +
         'value="' + reviewed + ' / ' + (accepted + rejected ) + ' (' + accepted + '/' + rejected + ') / ' + Math.round(percent) + '%"/></p>');
-
+    show_bar = function () {
+    }
 }
 
 function initScript() {
