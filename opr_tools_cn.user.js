@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.1.0
+// @version      1.1.1
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/*
@@ -36,10 +36,9 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-
  */
 
-let STRINGS = {
+const STRINGS_EN = {
     baidu: "Baidu",
     tencent: "Tencent",
     amap: "Amap",
@@ -70,6 +69,7 @@ let STRINGS = {
     percent_processed: "Percent Processed",
     next_badge_tier: "Next badge tier"
 };
+
 const STRINGS_CN = {
     baidu: "百度地图",
     tencent: "腾讯地图",
@@ -101,6 +101,44 @@ const STRINGS_CN = {
     percent_processed: "已处理的百分比",
     next_badge_tier: "下一等级牌子"
 };
+
+let STRINGS = STRINGS_EN;
+
+const GLOBAL_STYLE = `
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+}
+
+.dropdown-menu li a {
+    color: #ddd !important;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+    background-color: #004746 !important;
+    border: 1px solid #0ff !important;
+    border-radius: 0px !important;
+}
+
+.dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
+    background-color: #008780;
+}
+
+.modal-sm {
+    width: 350px !important;
+}
+
+.textButton {
+    color: #00FFFF;
+}`;
 
 const PORTAL_MARKER = "data:image/PNG;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAAd0SU1FB+EHEAccLVUS/qUAAAI0SURBVDjLldTNa55VEAXw39zniTGRqvEDUqOLiEGKKEELbcS9IG79AxSJqCju3MZ/oNhFwFZtEZeKS1FKXRgRLVK6qSVoGkWbCkbRlHy8b/I+46K3sYg1eJZ35p4599yZCf9AfoH3NQZuUrRCCzo72NHo6xnESRJR77WQs8TxevKeceEx4TCmpEkQfsCSzleGfJOsBPIZ4oO/CeULijCGV3RekkaEgnItReqETbyt86ZFq7Gg21VU0yZ1jgozGBbOS5eE1Upyl3APHpJeVBx0wGsWfAuRiVkTilnpdfwpfC19h560U3W3OkMaUzqHhDuFI1rz5v3UzK1r9T0pvSHcjNM4j00MhHTV14GwjVVsCFPSI9IFj1os1tyCGaGVzgoXse3G2MEyzgpFelyxrwjDeBADLEtb9kLoScvoC5PCSJGG8QA6rEgDe6MTLmNLZ0XqlWpk4/8j0QqHdG4t1cCfhcDYdX3zXxSBO6qAdY1BMaQvLUkN7q1NuJdHRZpAK32PzeJ36zhT60zjvj2e2mBCmK7FzwhXio/0tT4XPsbdmKnVyr8oCezHDMYVp7Q+86uNNjZlXrJowryBg7hfGJXOKS7r/FZJxqT9mMa4dBFvCRfiQxnXpjdfNWrLE3gWT0sbdUB7Vc8wRjAqfKpzQmch3nUlZ+v058vE/O4WeBhPSYdrf01Woh+lJXyp+CSOOQf5PPHOdWtk92efU4zYZ9s4bpduq6E16Q+NX7AWx3Q5R8xdDf4FFQPK0NE5za8AAAAASUVORK5CYII=";
 const w = typeof unsafeWindow === "undefined" ? window : unsafeWindow;
@@ -155,24 +193,29 @@ function show_bar() {
     }
     const nextBadgeProcess = processed / nextBadgeCount * 100;
 
-    lastPlayerStatLine.insertAdjacentHTML("beforeEnd", '<br><p><span class="glyphicon glyphicon-info-sign ingress-gray pull-left"></span>' +
-        '<span style="margin-left: 5px;" class="ingress-mid-blue pull-left">' + STRINGS.percent_processed + '</span> <span class="gold pull-right">' + processed + ' (' + percent + '%) </span></p>');
+    lastPlayerStatLine.insertAdjacentHTML("beforeEnd",
+        `<br>
+<p>
+    <span class="glyphicon glyphicon-info-sign ingress-gray pull-left"></span>
+    <span style="margin-left: 5px;" class="ingress-mid-blue pull-left">{0}</span> <span class="gold pull-right">{1} ({2}%) </span>
+</p>`.format(STRINGS.percent_processed, processed, percent));
 
     lastPlayerStatLine.insertAdjacentHTML("beforeEnd",
-        `<br><div>` + STRINGS.next_badge_tier + `: <b>` + nextBadgeName + ' (' + nextBadgeCount + ')' + `</b><span class="pull-right"></span>
-			        <div class="progress">
-				        <div class="progress-bar progress-bar-warning"
-				        role="progressbar"
-				        aria-valuenow="` + nextBadgeProcess + `"
-				        aria-valuemin="0"
-				        aria-valuemax="100"
-				        style="width: ` + Math.round(nextBadgeProcess) + `%;"
-				        title="` + (nextBadgeCount - processed) + ` to go">
-				            ` + Math.round(nextBadgeProcess) + `%
-			        </div></div></div>`);
+        `<br>
+<div> {0}: <b>{1} ({2})</b>
+    <span class="pull-right"></span>
+    <div class="progress">
+        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="{3}" aria-valuemin="0" aria-valuemax="100" style="width:{4}%;" title="{5} to go">
+            {6}%
+        </div>
+    </div>
+</div>`.format(STRINGS.next_badge_tier, nextBadgeName, nextBadgeCount, nextBadgeProcess, Math.round(nextBadgeProcess), (nextBadgeCount - processed), Math.round(nextBadgeProcess)));
 
-    lastPlayerStatLine.insertAdjacentHTML("beforeEnd", '<p><input onFocus="this.select();" style="width: 99%;" type="text" ' +
-        'value="' + reviewed + ' / ' + (accepted + rejected ) + ' (' + accepted + '/' + rejected + ') / ' + Math.round(percent) + '%"/></p>');
+    lastPlayerStatLine.insertAdjacentHTML("beforeEnd",
+        `<p>
+    <input onFocus="this.select();" style="width: 99%;" type="text" value=" {0} / {1} ({2} / {3}) / {4}%" />
+</p>`.format(reviewed, (accepted + rejected ), accepted, rejected, Math.round(percent)));
+
     show_bar = function () {
     }
 }
@@ -194,8 +237,6 @@ function initScript() {
     }
 
     // run on init
-
-
     modifyPage();
 
 
@@ -208,38 +249,7 @@ function initScript() {
         }
 
         // adding CSS
-        addGlobalStyle(`
-.dropdown {
-position: relative;
-display: inline-block;
-}
-
-.dropdown-content {
-display: none;
-position: absolute;
-z-index: 1;
-margin: 0;
-}
-.dropdown-menu li a {
-color: #ddd !important;
-}
-.dropdown:hover .dropdown-content {
-display: block;
-background-color: #004746 !important;
-border: 1px solid #0ff !important;
-border-radius: 0px !important;
-
-}
-.dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
-background-color: #008780;
-}
-.modal-sm {
-width: 350px !important;
-}
-.textButton{
-color:#00FFFF;
-}
-`);
+        addGlobalStyle(GLOBAL_STYLE);
 
 
         // adding map buttons
@@ -273,6 +283,12 @@ color:#00FFFF;
         newSubmitDiv.appendChild(submitDiv[0]);
         newSubmitDiv.appendChild(submitDiv[1]);
         classificationRow.insertAdjacentElement("afterend", newSubmitDiv);
+
+        // Re-enabling scroll zoom and allow zoom with out holding ctrl
+        // copy-paste from original script
+        const mapOptions = {scrollwheel: true, gestureHandling: 'greedy'};
+        subController.map.setOptions(cloneInto(mapOptions, w));
+        subController.map2.setOptions(cloneInto(mapOptions, w));
 
 
         // adding text buttons
@@ -463,7 +479,10 @@ color:#00FFFF;
 
         // portal image zoom button with "=s0"
         w.document.querySelector("#AnswersController .ingress-background").insertAdjacentHTML("beforeBegin",
-            "<div style='position:absolute;float:left;'><a class='button btn btn-default' style='display:inline-block;' href='" + subController.pageData.imageUrl + "=s0' target='fullimage'><span class='glyphicon glyphicon-search' aria-hidden='true'></span></div>");
+            `<div style='position:absolute;float:left;'>
+    <a class='button btn btn-default' style='display:inline-block;' href='{0}=s0' target='fullimage'>
+    <span class='glyphicon glyphicon-search' aria-hidden='true'></span>
+</div>`.format(subController.pageData.imageUrl));
 
         // REMOVED
         // skip "Your analysis has been recorded." dialog and go directly to next review
@@ -738,6 +757,44 @@ color:#00FFFF;
 
 }
 
+/**
+ * 扩展了 String 类型，给其添加格式化的功能，替换字符串中 {placeholder} 或者 {0}, {1} 等模式部分为参数中传入的字符串
+ * 使用方法:
+ *     'I can speak {language} since I was {age}'.format({language: 'Javascript', age: 10})
+ *     'I can speak {0} since I was {1}'.format('Javascript', 10)
+ * 输出都为:
+ *     I can speak Javascript since I was 10
+ *
+ * @param replacements 用来替换 placeholder 的 JSON 对象或者数组
+ */
+String.prototype.format = function (replacements) {
+    replacements = (typeof replacements === 'object') ? replacements : Array.prototype.slice.call(arguments, 0);
+    return formatString(this, replacements);
+};
+/**
+ * 替换字符串中 {placeholder} 或者 {0}, {1} 等模式部分为参数中传入的字符串
+ * 使用方法:
+ *     formatString('I can speak {language} since I was {age}', {language: 'Javascript', age: 10})
+ *     formatString('I can speak {0} since I was {1}', 'Javascript', 10)
+ * 输出都为:
+ *     I can speak Javascript since I was 10
+ *
+ * @param str 带有 placeholder 的字符串
+ * @param replacements 用来替换 placeholder 的 JSON 对象或者数组
+ */
+let formatString = function (str, replacements) {
+    replacements = (typeof replacements === 'object') ? replacements : Array.prototype.slice.call(arguments, 1);
+    return str.replace(/{{|}}|{(\w+)}/g, function (m, n) {
+        if (m === '{{') {
+            return '{';
+        }
+        if (m === '}}') {
+            return '}';
+        }
+        return replacements[n];
+    });
+};
+
 function init() {
     if (w.angular) {
         initAngular();
@@ -750,6 +807,7 @@ function init() {
 }
 
 window.addEventListener('load', function () {
+
     if (navigator.language === "zh-CN")
         STRINGS = STRINGS_CN;
     if (document.querySelector("[src*='all-min']")) {
