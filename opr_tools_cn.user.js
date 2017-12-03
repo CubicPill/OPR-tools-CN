@@ -36,8 +36,8 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-
  */
+
 const STRINGS_EN = {
     baidu: "Baidu",
     tencent: "Tencent",
@@ -69,6 +69,7 @@ const STRINGS_EN = {
     percent_processed: "Percent Processed",
     next_badge_tier: "Next badge tier"
 };
+
 const STRINGS_CN = {
     baidu: "百度地图",
     tencent: "腾讯地图",
@@ -100,6 +101,7 @@ const STRINGS_CN = {
     percent_processed: "已处理的百分比",
     next_badge_tier: "下一等级牌子"
 };
+
 let STRINGS = STRINGS_EN;
 
 const GLOBAL_STYLE = `
@@ -203,7 +205,7 @@ function show_bar() {
 <div> {0}: <b>{1} ({2})</b>
     <span class="pull-right"></span>
     <div class="progress">
-        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="{3}" + aria-valuemin="0" aria-valuemax="100" style="width:{4}%;" title="{5} to go">
+        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="{3}" aria-valuemin="0" aria-valuemax="100" style="width:{4}%;" title="{5} to go">
             {6}%
         </div>
     </div>
@@ -235,8 +237,6 @@ function initScript() {
     }
 
     // run on init
-
-
     modifyPage();
 
 
