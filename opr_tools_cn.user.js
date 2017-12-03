@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      1.1.0
+// @version      1.1.1
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/*
@@ -273,6 +273,12 @@ color:#00FFFF;
         newSubmitDiv.appendChild(submitDiv[0]);
         newSubmitDiv.appendChild(submitDiv[1]);
         classificationRow.insertAdjacentElement("afterend", newSubmitDiv);
+
+        // Re-enabling scroll zoom and allow zoom with out holding ctrl
+        // copy-paste from original script
+        const mapOptions = {scrollwheel: true, gestureHandling: 'greedy'};
+        subController.map.setOptions(cloneInto(mapOptions, w));
+        subController.map2.setOptions(cloneInto(mapOptions, w));
 
 
         // adding text buttons
