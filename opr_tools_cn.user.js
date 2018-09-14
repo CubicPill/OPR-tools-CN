@@ -71,9 +71,10 @@ const STRINGS_EN = {
     percent_processed: "Percent Processed",
     next_badge_tier: "Next badge tier",
     new_preset_name: "New preset name:",
-    created_preset: "✔ Created preset ",
-    delete_preset: "Deleted preset ",
-    applied_preset: "✔ Applied "
+    created_preset: "✔ Created preset",
+    delete_preset: "Deleted preset",
+    applied_preset: "✔ Applied",
+    preset_tooltip: "(OPR-Tools) Create your own presets for stuff like churches, playgrounds or crosses'.\nHowto: Answer every question you want included and click on the +Button.\n\nTo delete a preset shift-click it.",
 };
 
 const STRINGS_CN = {
@@ -105,7 +106,13 @@ const STRINGS_CN = {
     ruin: "遗址",
     trail_mk: "步道路标",
     percent_processed: "已处理的百分比",
-    next_badge_tier: "下一等级牌子"
+    next_badge_tier: "下一等级牌子",
+    new_preset_name: "新预设评分名称:",
+    created_preset: "✔ 创建预设",
+    delete_preset: "删除预设",
+    applied_preset: "✔ 使用预设",
+    preset_tooltip: "(OPR-Tools) 为长椅、操场等物品建立自己的预设评分.\n使用方法: 对所有希望包括的评分项评分，然后点击 + 按钮.\n\n删除预设请按住 Shift 键然后点击。",
+
 };
 
 let STRINGS = STRINGS_EN;
@@ -261,20 +268,20 @@ function init() {
 
         // we have to inject the tooltip to angular
         w.$injector.invoke(cloneInto(["$compile", ($compile) => {
-            let compiledSubmit = $compile(`<span class="glyphicon glyphicon-info-sign darkgray" uib-tooltip-trigger="outsideclick" uib-tooltip-placement="left" tooltip-class="goldBorder" uib-tooltip="(OPR-Tools) Create your own presets for stuff like churches, playgrounds or crosses'.\nHowto: Answer every question you want included and click on the +Button.\n\nTo delete a preset shift-click it."></span>&nbsp; `)(w.$scope(document.getElementById("descriptionDiv")));
+            let compiledSubmit = $compile(`<span class="glyphicon glyphicon-info-sign darkgray" uib-tooltip-trigger="outsideclick" uib-tooltip-placement="left" tooltip-class="goldBorder" uib-tooltip="` + STRINGS.preset_tooltip + `"></span>&nbsp; `)(w.$scope(document.getElementById("descriptionDiv")));
             w.document.getElementById("addPreset").insertAdjacentElement("beforebegin", compiledSubmit[0]);
         }], w, {cloneFunctions: true}));
 
         // click listener for +preset button
         w.document.getElementById("addPreset").addEventListener("click", exportFunction(event => {
-            alertify.okBtn("Save").prompt("New preset name:",
+            alertify.okBtn("Save").prompt(STRINGS.new_preset_name,
                 (value, event) => {
                     event.preventDefault();
                     if (value == "undefined" || value == "") {
                         return;
                     }
                     saveCustomPreset(value, ansController, whatController);
-                    alertify.success(`✔ Created preset <i>${value}</i>`);
+                    alertify.success(STRINGS.created_preset + ` <i>${value}</i>`);
                     addCustomPresetButtons();
 
                 }, event => {
@@ -293,7 +300,7 @@ function init() {
             let preset = oprt_customPresets.find(item => item.uid === value);
 
             if (event.shiftKey) {
-                alertify.log(`Deleted preset <i>${preset.label}</i>`);
+                alertify.log(STRINGS.delete_preset + ` <i>${preset.label}</i>`);
                 w.document.getElementById(preset.uid).remove();
                 deleteCustomPreset(preset);
                 return;
@@ -324,7 +331,7 @@ function init() {
             event.target.blur();
             w.$rootScope.$apply();
 
-            alertify.success(`✔ Applied <i>${preset.label}</i>`);
+            alertify.success(STRINGS.applied_preset + ` <i>${preset.label}</i>`);
 
         }, w);
 
@@ -899,6 +906,89 @@ function init() {
         }], w, {cloneFunctions: true}));
         return {submitButton, submitAndNext};
     }
+
+    function textButtons() {
+
+        let emergencyWay = "";
+        if (browserLocale.includes("de")) {
+            emergencyWay = "RETTUNGSWEG!1";
+        } else {
+            emergencyWay = "Emergency Way";
+        }
+
+        // add text buttons
+        const textButtons = `
+<button id='photo' class='button btn btn-default textButton' data-tooltip='Indicates a low quality photo'>Photo</button>
+<button id='private' class='button btn btn-default textButton' data-tooltip='Located on private residential property'>Private</button>`;
+        const textDropdown = `
+<li><a class='textButton' id='school' data-tooltip='Located on school property'>School</a></li>
+<li><a class='textButton' id='person' data-tooltip='Photo contains 1 or more people'>Person</a></li>
+<li><a class='textButton' id='perm' data-tooltip='Seasonal or temporary display or item'>Temporary</a></li>
+<li><a class='textButton' id='location' data-tooltip='Location wrong'>Location</a></li>
+<li><a class='textButton' id='natural' data-tooltip='Candidate is a natural feature'>Natural</a></li>
+<li><a class='textButton' id='emergencyway' data-tooltip='Obstructing emergency way'>${emergencyWay}</a></li>
+`;
+
+        const textBox = w.document.querySelector("#submitDiv + .text-center > textarea");
+
+        w.document.querySelector("#submitDiv + .text-center").insertAdjacentHTML("beforeend", `
+<div class='btn-group dropup'>${textButtons}
+<div class='button btn btn-default dropdown'><span class='caret'></span><ul class='dropdown-content dropdown-menu'>${textDropdown}</ul>
+</div></div><div class="hidden-xs"><button id='clear' class='button btn btn-default textButton' data-tooltip='clears the comment box'>Clear</button></div>
+`);
+
+        const buttons = w.document.getElementsByClassName("textButton");
+        for (let b in buttons) {
+            if (buttons.hasOwnProperty(b)) {
+                buttons[b].addEventListener("click", exportFunction(event => {
+                    const source = event.target || event.srcElement;
+                    let text = textBox.value;
+                    if (text.length > 0) {
+                        text += ",\n";
+                    }
+                    switch (source.id) {
+                        case "photo":
+                            text += "Low quality photo";
+                            break;
+                        case "private":
+                            text += "Private residential property";
+                            break;
+                        case "duplicate":
+                            text += "Duplicate of previously reviewed portal candidate";
+                            break;
+                        case "school":
+                            text += "Located on primary or secondary school grounds";
+                            break;
+                        case "person":
+                            text += "Picture contains one or more people";
+                            break;
+                        case "perm":
+                            text += "Portal candidate is seasonal or temporary";
+                            break;
+                        case "location":
+                            text += "Portal candidate's location is not on object";
+                            break;
+                        case "emergencyway":
+                            text += "Portal candidate is obstructing the path of emergency vehicles";
+                            break;
+                        case "natural":
+                            text += "Portal candidate is a natural feature";
+                            break;
+                        case "clear":
+                            text = "";
+                            break;
+                    }
+
+                    textBox.value = text;
+                    textBox.dispatchEvent(new Event("change"));
+
+                    event.target.blur();
+
+                }, w), false);
+            }
+        }
+    }
+
 
     // adding a 40m circle around the portal (capture range)
     function mapOriginCircle(map) {
