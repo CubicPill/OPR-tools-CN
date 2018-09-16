@@ -75,6 +75,7 @@ const STRINGS_EN = {
     delete_preset: "Deleted preset",
     applied_preset: "✔ Applied",
     preset_tooltip: "(OPR-Tools) Create your own presets for stuff like churches, playgrounds or crosses'.\nHowto: Answer every question you want included and click on the +Button.\n\nTo delete a preset shift-click it.",
+    expired: "EXPIRED",
 };
 
 const STRINGS_CN = {
@@ -112,6 +113,7 @@ const STRINGS_CN = {
     delete_preset: "删除预设",
     applied_preset: "✔ 使用预设",
     preset_tooltip: "(OPR-Tools) 为长椅、操场等物品建立自己的预设评分.\n使用方法: 对所有希望包括的评分项评分，然后点击 + 按钮.\n\n删除预设请按住 Shift 键然后点击。",
+    expired: "已过期",
 
 };
 
@@ -1356,7 +1358,7 @@ uib-tooltip="Use negative values, if scanner is ahead of OPR"></span>`;
             if (distance < 0) {
                 // If the count down is finished, write some text
                 clearInterval(counterInterval);
-                countdownDisplay.innerText = "EXPIRED";
+                countdownDisplay.innerText = STRINGS.expired;
                 countdownDisplay.classList.add("blink");
 
 
