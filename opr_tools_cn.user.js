@@ -71,6 +71,7 @@ const STRINGS_EN = {
     percent_processed: "Percent Processed",
     next_badge_tier: "Next badge tier",
     new_preset_name: "New preset name:",
+    preset: "Preset",
     created_preset: "✔ Created preset",
     delete_preset: "Deleted preset",
     applied_preset: "✔ Applied",
@@ -108,6 +109,7 @@ const STRINGS_CN = {
     trail_mk: "步道路标",
     percent_processed: "已处理的百分比",
     next_badge_tier: "下一等级牌子",
+    preset: "预设评分",
     new_preset_name: "新预设评分名称:",
     created_preset: "✔ 创建预设",
     delete_preset: "删除预设",
@@ -116,8 +118,11 @@ const STRINGS_CN = {
     expired: "已过期",
 
 };
+let STRINGS = STRINGS_CN;
 
-let STRINGS = STRINGS_EN;
+if (navigator.language.search('en'))
+    STRINGS = STRINGS_EN;
+STRINGS = STRINGS_CN;
 
 const OPRT = {
     SCANNER_OFFSET: "oprt_scanner_offset",
@@ -260,7 +265,7 @@ function init() {
 
         const customPresetUI = `
 <div class="row" id="presets"><div class="col-xs-12">
-	<div>Presets&nbsp;<button class="button btn btn-default btn-xs" id="addPreset">+</button></div>
+	<div>` + STRINGS.preset + `&nbsp;<button class="button btn btn-default btn-xs" id="addPreset">+</button></div>
 	<div class='btn-group' id="customPresets"></div>
 </div></div>`;
 
@@ -851,42 +856,26 @@ function init() {
         const coordUtm33 = proj4("+proj=longlat", "+proj=utm +zone=33", [newPortalData.lng, newPortalData.lat]);
         const coordUtm35 = proj4("+proj=longlat", "+proj=utm +zone=35", [newPortalData.lng, newPortalData.lat]);
         const coordPuwg92 = proj4("+proj=longlat", "+proj=tmerc +lat_0=0 +lon_0=19 +k=0.9993 +x_0=500000 +y_0=-5300000 +ellps=GRS80 +units=m +no_defs", [newPortalData.lng, newPortalData.lat]);
+        const wgs_lat = newPortalData.lat;
+        const wgs_lng = newPortalData.lng;
+        const name = newPortalData.title;
+        const _gcj = coordtransform.wgs84togcj02(wgs_lng, wgs_lat);
+        const gcj_lat = _gcj[1];
+        const gcj_lng = _gcj[0];
+        const _bd = coordtransform.gcj02tobd09(gcj_lng, gcj_lat);
+        const bd_lat = _bd[1];
+        const bd_lng = _bd[0];
+        const mapButtons = [
+            "<a class='button btn btn-default' target='intel' href='https://www.ingress.com/intel?ll=" + wgs_lat + "," + wgs_lng + "&z=17'>Intel</a>",
+            "<a class='button btn btn-default' target='osm' href='https://www.openstreetmap.org/?mlat=" + wgs_lat + "&mlon=" + wgs_lng + "&zoom=16'>OSM</a>",
+            "<a class='button btn btn-default' target='baidu' href='http://api.map.baidu.com/marker?location=" + wgs_lat + "," + wgs_lng + "&title=" + name + "&content=OPR_Candidate&output=html&coord_type=wgs84&src=OPR'>" + STRINGS.baidu + "</a>",
+            "<a class='button btn btn-default' target='tencent' href='http://apis.map.qq.com/uri/v1/marker?&marker=coord:" + gcj_lat + "," + gcj_lng + ";title:" + name + ";addr:&referer=OPR'>" + STRINGS.tencent + "</a>",
+            "<a class='button btn btn-default' target='amap' href='http://uri.amap.com/marker?position=" + wgs_lng + "," + wgs_lat + "&name=" + name + "&src=opr&coordinate=wgs84&callnative=0\n'>" + STRINGS.amap + "</a>",
+            "<a class='button btn btn-default' target='baidu-streetview' href='http://api.map.baidu.com/pano/?x=" + bd_lng + "&y=" + bd_lat + "&lc=0&ak=ngDX6G7TgWSmjMstxolm7g642F7eUbkS'>" + STRINGS.bdstreetview + "</a>"
+        ];
 
-        const mapButtons = `
-<a class='button btn btn-default' target='intel' href='https://www.ingress.com/intel?ll=${newPortalData.lat},${newPortalData.lng}&z=17'>Intel</a>
-<a class='button btn btn-default' target='osm' href='https://www.openstreetmap.org/?mlat=${newPortalData.lat}&mlon=${newPortalData.lng}&zoom=16'>OSM</a>
-`;
 
-        // more map buttons in a dropdown menu
-        const mapDropdown = `
-<li><a target='bing' href='https://bing.com/maps/default.aspx?cp=${newPortalData.lat}~${newPortalData.lng}&lvl=16&style=a'>bing</a></li>
-<li><a target='heremaps' href='https://wego.here.com/?map=${newPortalData.lat},${newPortalData.lng},17,satellite'>HERE maps</a></li>
-<li><a target='wikimapia' href='http://wikimapia.org/#lat=${newPortalData.lat}&lon=${newPortalData.lng}&z=16'>Wikimapia</a></li>
-<li><a targeT='zoomearth' href='https://zoom.earth/#${newPortalData.lat},${newPortalData.lng},18z,sat'>Zoom Earth</a></li>
-<li role='separator' class='divider'></li>
-<li><a target='swissgeo' href='http://map.geo.admin.ch/?swisssearch=${newPortalData.lat},${newPortalData.lng}'>CH - Swiss Geo Map</a></li>
-<li><a target='mapycz' href='https://mapy.cz/zakladni?x=${newPortalData.lng}&y=${newPortalData.lat}&z=17&base=ophoto&source=coor&id=${newPortalData.lng}%2C${newPortalData.lat}&q=${newPortalData.lng}%20${newPortalData.lat}'>CZ-mapy.cz (ortofoto)</a></li>
-<li><a target='mapycz' href='https://mapy.cz/zakladni?x=${newPortalData.lng}&y=${newPortalData.lat}&z=17&base=ophoto&m3d=1&height=180&yaw=-279.39&pitch=-40.7&source=coor&id=${newPortalData.lng}%2C${newPortalData.lat}&q=${newPortalData.lng}%20${newPortalData.lat}'>CZ-mapy.cz (orto+3D)</a></li>
-<li><a target='kompass' href='http://maps.kompass.de/#lat=${newPortalData.lat}&lon=${newPortalData.lng}&z=17'>DE - Kompass.maps</a></li>
-<li><a target='bayernatlas' href='https://geoportal.bayern.de/bayernatlas/index.html?X=${newPortalData.lat}&Y=${newPortalData.lng}&zoom=14&lang=de&bgLayer=luftbild&topic=ba&catalogNodes=122'>DE - BayernAtlas</a></li>
-<li><a target='pegel' href='http://opr.pegel.dk/?17/${newPortalData.lat}/${newPortalData.lng}'>DK - SDFE Orthophotos</a></li>
-<li><a target='kortforsyningen' href='https://skraafoto.kortforsyningen.dk/oblivisionjsoff/index.aspx?project=Denmark&lon=${newPortalData.lng}&lat=${newPortalData.lat}'>DK - Kortforsyningen Skråfoto</a></li>
-<li><a target='maanmittauslaitos' href='https://asiointi.maanmittauslaitos.fi/karttapaikka/?lang=en&share=customMarker&n=${coordUtm35[1].toFixed(3)}&e=${coordUtm35[0].toFixed(3)}&title=${encodeURIComponent(newPortalData.title)}&desc=&zoom=11&layers=%5B%7B%22id%22%3A2%2C%22opacity%22%3A100%7D%5D'>FI - Maanmittauslaitos</a></li>
-<li><a target='paikkatietoikkuna' href='https://kartta.paikkatietoikkuna.fi/?zoomLevel=11&coord=${coordUtm35[0].toFixed(3)}_${coordUtm35[1].toFixed(3)}&mapLayers=801+100+default&uuid=90246d84-3958-fd8c-cb2c-2510cccca1d3&showMarker=true'>FI - Paikkatietoikkuna</a></li>
-<li><a target='kakao' href='http://map.daum.net/link/map/${newPortalData.lat},${newPortalData.lng}'>KR - Kakao map</a></li>
-<li><a target='naver' href='http://map.naver.com/?menu=location&lat=${newPortalData.lat}&lng=${newPortalData.lng}&dLevel=14&title=CandidatePortalLocation'>KR - Naver map</a></li>
-<li><a target='kartverket' href='http://norgeskart.no/#!?project=seeiendom&layers=1002,1014&zoom=17&lat=${coordUtm33[1].toFixed(2)}&lon=${coordUtm33[0].toFixed(2)}&sok=${newPortalData.lat},${newPortalData.lng}'>NO - Kartverket</a></li>
-<li><a target='norgeibilder' href='https://norgeibilder.no/?x=${Math.round(coordUtm33[0])}&y=${Math.round(coordUtm33[1])}&level=16&utm=33'>NO - Norge i Bilder</a></li>
-<li><a target='finnno' href='http://kart.finn.no/?lng=${newPortalData.lng}&lat=${newPortalData.lat}&zoom=17&mapType=normap&markers=${newPortalData.lng},${newPortalData.lat},r,'>NO - Finn Kart</a></li>
-<li><a target='toposvalbard' href='http://toposvalbard.npolar.no/?lat=${newPortalData.lat}&long=${newPortalData.lng}&zoom=17&layer=map'>NO - Polarinstituttet, Svalbard</a></li>
-<li><a target='geoportal_pl' href='http://mapy.geoportal.gov.pl/imap/?actions=acShowWgButtonPanel_kraj_ORTO&bbox=${coordPuwg92[0] - 127},${coordPuwg92[1] - 63},${coordPuwg92[0] + 127},${coordPuwg92[1] + 63}'>PL - GeoPortal</a></li>
-<li><a target='yandex' href='https://maps.yandex.ru/?text=${newPortalData.lat},${newPortalData.lng}'>RU - Yandex</a></li>
-<li><a target='lantmateriet' href='https://kso.etjanster.lantmateriet.se/?e=${Math.round(coordUtm33[0])}&n=${Math.round(coordUtm33[1])}&z=13'>SE - Läntmateriet</a></li>
-<li><a target='hitta' href='https://www.hitta.se/kartan!~${newPortalData.lat},${newPortalData.lng},18z/tileLayer!l=1'>SE - Hitta.se</a></li>
-<li><a target='eniro' href='https://kartor.eniro.se/?c=${newPortalData.lat},${newPortalData.lng}&z=17&l=nautical'>SE - Eniro Sjökort</a></li>
-`;
-
-        targetElement.insertAdjacentHTML(where, `<div><div class='btn-group'>${mapButtons}<div class='button btn btn-default dropdown'><span class='caret'></span><ul class='dropdown-content dropdown-menu'>${mapDropdown}</div>`);
+        targetElement.insertAdjacentHTML(where, `<div><div class='btn-group'>${mapButtons.join("")}`);
     }
 
     // add new button "Submit and reload", skipping "Your analysis has been recorded." dialog
