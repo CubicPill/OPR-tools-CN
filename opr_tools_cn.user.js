@@ -1007,7 +1007,7 @@ function init() {
     function mapTypes(map, isMainMap) {
         const PROVIDERS = {
             GOOGLE: "google",
-            KARTVERKET: "kartverket",
+            AMAP: "amap",
         };
 
         const types = [
@@ -1015,19 +1015,9 @@ function init() {
             {provider: PROVIDERS.GOOGLE, id: "terrain"},
             {provider: PROVIDERS.GOOGLE, id: "satellite"},
             {provider: PROVIDERS.GOOGLE, id: "hybrid"},
-            {provider: PROVIDERS.KARTVERKET, id: `${PROVIDERS.KARTVERKET}_topo`, code: "topo4", label: "NO - Topo"},
-            {
-                provider: PROVIDERS.KARTVERKET,
-                id: `${PROVIDERS.KARTVERKET}_raster`,
-                code: "toporaster3",
-                label: "NO - Raster"
-            },
-            {
-                provider: PROVIDERS.KARTVERKET,
-                id: `${PROVIDERS.KARTVERKET}_sjo`,
-                code: "sjokartraster",
-                label: "NO - Sjøkart"
-            },
+            {provider: PROVIDERS.AMAP, id: `${PROVIDERS.AMAP}_roadmap`, style: 7, label: "高德道路"},
+            {provider: PROVIDERS.AMAP, id: `${PROVIDERS.AMAP}_satellite`, style: 6, label: "高德卫星"},
+            {provider: PROVIDERS.AMAP, id: `${PROVIDERS.AMAP}_hybrid`, style: 6, label: "高德混合"},
         ];
 
         const defaultType = "hybrid";
@@ -1045,21 +1035,55 @@ function init() {
         };
         map.setOptions(cloneInto(mapOptions, w));
 
+        const gcjProjection = {
+            origProjection: map.mapTypes.roadmap.projection,
+            fromLatLngToPoint: function(latLng) {
+                const gcj = coordtransform.wgs84togcj02(latLng.lng(), latLng.lat());
+                return this.origProjection.fromLatLngToPoint(new google.maps.LatLng(gcj[1], gcj[0]));
+            },
+            fromPointToLatLng: function(point, noWrap) {
+                const gcj = this.origProjection.fromPointToLatLng(point, noWrap);
+                const wgs = coordtransform.gcj02towgs84(gcj.lng(), gcj.lat());
+                return new google.maps.LatLng(wgs[1], wgs[0], noWrap)
+            }
+        };
+        map.mapTypes.roadmap.projection = gcjProjection;
+
         // register custom map types
         types.forEach(t => {
             switch (t.provider) {
-                case PROVIDERS.KARTVERKET:
-                    map.mapTypes.set(t.id, new google.maps.ImageMapType({
-                        layer: t.code,
+                case PROVIDERS.AMAP:
+                    const amapType = new google.maps.ImageMapType({
+                        style: t.style,
                         name: t.label,
                         alt: t.label,
                         maxZoom: 19,
                         tileSize: new google.maps.Size(256, 256),
                         getTileUrl: function (coord, zoom) {
-                            return `//opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=${this.layer}&zoom=${zoom}&x=${coord.x}&y=${coord.y}`;
+                            // wprd0{1-4}
+                            return `//wprd01.is.autonavi.com/appmaptile?x=${coord.x}&y=${coord.y}&z=${zoom}&lang=zh_cn&style=${this.style}`;
                         }
-                    }));
+                    });
+                    amapType.projection = gcjProjection;
+                    map.mapTypes.set(t.id, amapType);
                     break;
+            }
+        });
+
+        map.addListener('maptypeid_changed', function() {
+            if (map.getMapTypeId() === `${PROVIDERS.AMAP}_hybrid`) {
+                const amapOverlayType = new google.maps.ImageMapType({
+                    opacity: 0.75,
+                    tileSize: new google.maps.Size(256, 256),
+                    getTileUrl: function (coord, zoom) {
+                        // wprd0{1-4}
+                        return `//wprd01.is.autonavi.com/appmaptile?x=${coord.x}&y=${coord.y}&z=${zoom}&lang=zh_cn&style=8`;
+                    }
+                });
+                amapOverlayType.projection = gcjProjection;
+                map.overlayMapTypes.setAt(0, amapOverlayType);
+            } else {
+                map.overlayMapTypes.removeAt(0);
             }
         });
 
