@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         OPR tools CN
-// @version      2.0.0
+// @version      2.1.0
 // @description  Add links to maps, rate on common objects, and other small improvements
 // @author       CubicPill
 // @match        https://opr.ingress.com/*
@@ -412,7 +412,10 @@ function init() {
 
         // move portal rating to the right side. don't move on mobile devices / small width
         if (screen.availWidth > 768) {
-            const scorePanel = w.document.querySelector("div[class~='pull-right']");
+            let scorePanel = w.document.querySelector('div[ng-show="subCtrl.hasSupportingImageOrStatement"]');
+            if (scorePanel.classList.contains('ng-hide')) {
+                scorePanel = w.document.querySelector('div[ng-show="!subCtrl.hasSupportingImageOrStatement"]');
+            }
             let nodeToMove = w.document.querySelector("div[class='btn-group']").parentElement;
             scorePanel.insertBefore(nodeToMove, scorePanel.firstChild);
         }
