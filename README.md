@@ -1,4 +1,5 @@
 # OPR-tools-CN
+**This project is now deprecated. Ingress OPR is now Niantic Wayfarer.**
 A plugin for ingress OPR page    
 ![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/screenshot.png)
 ![](https://raw.githubusercontent.com/CubicPill/OPR-tools-CN/master/demo/dropdown.png)
